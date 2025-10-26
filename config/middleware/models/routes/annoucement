@@ -1,0 +1,19 @@
+import express from "express";
+import Announcement from "../models/Announcement.js";
+import { protect, adminOnly } from "../middleware/authMiddleware.js";
+
+const router = express.Router();
+
+router.get("/", protect, async (req, res) => {
+  const announcements = await Announcement.find().sort({ date: -1 });
+  res.json(announcements);
+});
+
+router.post("/", protect, adminOnly, async (req, res) => {
+  const { title, message } = req.body;
+  const ann = new Announcement({ title, message });
+  await ann.save();
+  res.json(ann);
+});
+
+export default router;
