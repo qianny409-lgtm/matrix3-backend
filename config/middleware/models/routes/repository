@@ -1,0 +1,19 @@
+import express from "express";
+import Repository from "../models/Repository.js";
+import { protect, adminOnly } from "../middleware/authMiddleware.js";
+
+const router = express.Router();
+
+router.get("/", protect, async (req, res) => {
+  const repos = await Repository.find().populate("sharedWith", "username");
+  res.json(repos);
+});
+
+router.post("/", protect, adminOnly, async (req, res) => {
+  const { title, description, link, sharedWith } = req.body;
+  const repo = new Repository({ title, description, link, sharedWith });
+  await repo.save();
+  res.json(repo);
+});
+
+export default router;
