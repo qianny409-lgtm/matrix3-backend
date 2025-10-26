@@ -1,0 +1,25 @@
+import express from "express";
+import Todo from "../models/Todo.js";
+import { protect } from "../middleware/authMiddleware.js";
+
+const router = express.Router();
+
+router.get("/", protect, async (req, res) => {
+  const todos = await Todo.find({ owner: req.user.id });
+  res.json(todos);
+});
+
+router.post("/", protect, async (req, res) => {
+  const todo = new Todo({ task: req.body.task, owner: req.user.id });
+  await todo.save();
+  res.json(todo);
+});
+
+router.put("/:id", protect, async (req, res) => {
+  const todo = await Todo.findById(req.params.id);
+  todo.completed = !todo.completed;
+  await todo.save();
+  res.json(todo);
+});
+
+export default router;
